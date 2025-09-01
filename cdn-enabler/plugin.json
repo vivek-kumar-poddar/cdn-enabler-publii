@@ -1,0 +1,95 @@
+{
+    "name": "CDN Enabler",
+    "version": "0.0.1",
+    "description": "Replaces local asset paths with a custom CDN URL for optimized content delivery. Supports images, CSS, JavaScript, fonts, and feeds. Configure which asset types to serve from your CDN including images from /media/, stylesheets and scripts from /assets/ and /themes/, web fonts (WOFF, WOFF2, TTF), and optionally RSS/JSON feeds and sitemaps. Preserves protocols and handles responsive srcset attributes automatically.",
+    "author": "https://convertvkp.com",
+    "license": "GNU AGPLv3",
+    "scope": "site",
+    "minimumPubliiVersion": "0.42.0",
+    "config": [
+        {
+            "name": "separatorGeneral",
+            "type": "separator",
+            "label": "CDN URL",
+            "group": "CDN Config"
+        },
+        {
+            "name": "cdnUrl",
+            "label": "Enter URL",
+            "group": "CDN Config",
+            "type": "text",
+            "value": "",
+            "note": "Enter your full CDN URL without a trailing slash (e.g., https://cdn.yourdomain.com). The plugin will automatically handle the protocol (http/https)."
+        },
+        {
+            "name": "separatorAssets",
+            "type": "separator",
+            "label": "Asset Types",
+            "group": "Asset Settings",
+            "note": "Choose which types of static assets should be served from your CDN."
+        },
+        {
+            "name": "enableImages",
+            "label": "Images",
+            "group": "Asset Settings",
+            "note": "Enable to serve images (.jpg, .png, .gif, .svg, .webp, etc.) from the CDN. This includes images in posts, thumbnails, and responsive `srcset` images.",
+            "value": true,
+            "type": "checkbox"
+        },
+        {
+            "name": "enableCss",
+            "label": "CSS",
+            "group": "Asset Settings",
+            "note": "Enable to serve CSS stylesheets from the CDN.",
+            "value": true,
+            "type": "checkbox"
+        },
+        {
+            "name": "enableJs",
+            "label": "JavaScript",
+            "group": "Asset Settings",
+            "note": "Enable to serve JavaScript files from the CDN.",
+            "value": true,
+            "type": "checkbox"
+        },
+        {
+            "name": "enableFonts",
+            "label": "Fonts",
+            "group": "Asset Settings",
+            "note": "Enable to serve font files (.woff, .woff2, .ttf, etc.) from the CDN.",
+            "value": true,
+            "type": "checkbox"
+        },
+        {
+            "name": "separatorFeeds",
+            "type": "separator",
+            "label": "Feeds & Sitemaps",
+            "group": "Advanced Settings",
+            "note": "Enable CDN for assets linked within feeds. It's recommended to keep these disabled unless you have a specific need."
+        },
+        {
+            "name": "enableSitemap",
+            "label": "Sitemap",
+            "group": "Advanced Settings",
+            "note": "Rewrites asset URLs (e.g., image sitemaps) within the sitemap.xml. This will NOT rewrite the main page URLs, which is important for SEO.",
+            "value": false,
+            "type": "checkbox"
+        },
+        {
+            "name": "enableJsonFeed",
+            "label": "JSON Feed",
+            "group": "Advanced Settings",
+            "note": "Rewrites image and asset URLs within the feed.json file.",
+            "value": false,
+            "type": "checkbox"
+        },
+        {
+            "name": "enableXmlFeed",
+            "label": "RSS Feed",
+            "group": "Advanced Settings",
+            "note": "Rewrites image and asset URLs within the feed.xml file.",
+            "value": false,
+            "type": "checkbox"
+        }
+    ]
+}
