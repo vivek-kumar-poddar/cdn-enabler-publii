@@ -1,7 +1,7 @@
 {
     "name": "CDN Enabler",
-    "version": "0.0.1",
-    "description": "Replaces local asset paths with a custom CDN URL for optimized content delivery. Supports images, CSS, JavaScript, fonts, and feeds. Configure which asset types to serve from your CDN including images from /media/, stylesheets and scripts from /assets/ and /themes/, web fonts (WOFF, WOFF2, TTF), and optionally RSS/JSON feeds and sitemaps. Preserves protocols and handles responsive srcset attributes automatically.",
+    "version": "0.0.2",
+    "description": "Replaces local asset paths with a custom CDN URL for optimized content delivery. Supports images, CSS, JavaScript, fonts, and feeds. Rewrites only local/same-origin URLs to avoid third-party breakage, preserves protocol behavior safely, and handles responsive srcset attributes automatically.",
     "author": "https://convertvkp.com",
     "license": "GNU AGPLv3",
     "scope": "site",
@@ -19,7 +19,7 @@
             "group": "CDN Config",
             "type": "text",
             "value": "",
-            "note": "Enter your full CDN URL without a trailing slash (e.g., https://cdn.yourdomain.com). The plugin will automatically handle the protocol (http/https)."
+            "note": "Enter your CDN URL (e.g., https://cdn.yourdomain.com). You can include protocol or only host. For root-relative assets, site protocol is preferred, then configured CDN protocol, then HTTPS fallback."
         },
         {
             "name": "separatorAssets",
@@ -79,7 +79,7 @@
             "name": "enableJsonFeed",
             "label": "JSON Feed",
             "group": "Advanced Settings",
-            "note": "Rewrites image and asset URLs within the feed.json file.",
+            "note": "Rewrites enabled local asset URLs within the feed.json file.",
             "value": false,
             "type": "checkbox"
         },
@@ -87,9 +87,25 @@
             "name": "enableXmlFeed",
             "label": "RSS Feed",
             "group": "Advanced Settings",
-            "note": "Rewrites image and asset URLs within the feed.xml file.",
+            "note": "Rewrites enabled local asset URLs within the feed.xml file.",
             "value": false,
             "type": "checkbox"
+        },
+        {
+            "name": "includePathPattern",
+            "label": "Include Path Regex (optional)",
+            "group": "Advanced Settings",
+            "type": "text",
+            "value": "",
+            "note": "Only rewrite URLs whose path matches this JavaScript regex. Example: ^/(media|assets|themes)/"
+        },
+        {
+            "name": "excludePathPattern",
+            "label": "Exclude Path Regex (optional)",
+            "group": "Advanced Settings",
+            "type": "text",
+            "value": "",
+            "note": "Skip rewriting for paths matching this regex, even when asset toggles match. Example: /media/private/|\\.map$"
         }
     ]
 }

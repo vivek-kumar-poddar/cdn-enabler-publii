@@ -1,76 +1,68 @@
 # CDN Enabler for Publii
 
-
-## Powerful CDN Plugin for the Publii Static Site Generator
-
-Enable a Content Delivery Network (CDN) to enhance your website's performance. This plugin gives you 100% complete control to choose which static assets to serve from a CDN server and which to keep local.
-
 ## Overview
 
-CDN Enabler seamlessly replaces local asset paths with a custom CDN URL for optimized content delivery. It provides granular control over which assets are served through your CDN, helping to significantly speed up your site's loading times for visitors worldwide.
+CDN Enabler rewrites eligible local asset URLs to a configured CDN domain during publish/deploy output generation in Publii.
 
-## Features
+Last documentation update: 2026-03-05
+Current plugin version: `0.0.2`
 
-*   **Comprehensive Asset Support:** Works with images, CSS, JavaScript, and fonts.
-*   **Complete Path Rewriting:** Replaces URLs for assets located in `/media/`, `/assets/`, and `/themes/` directories.
-*   **Advanced Control:** Optionally enable CDN for RSS/JSON feeds and sitemaps.
-*   **Protocol Preservation:** Automatically handles `http` and `https` protocols to avoid mixed-content errors.
-*   **Responsive Image Support:** Intelligently handles responsive `srcset` attributes for images, ensuring all resolutions are served from the CDN.
+## Current Feature Set
+
+1. Deploy-only rewriting (no rewrite in preview or instant-preview).
+2. HTML attribute rewriting for `src`, `href`, and `srcset`.
+3. Asset type toggles for images, CSS, JavaScript, and fonts.
+4. Optional output modifiers for `feed.xml`, `feed.json`, and `sitemap.xml`.
+5. Same-origin safety: third-party URLs are not rewritten.
+6. Protocol-safe behavior for root-relative and protocol-relative URLs.
+7. Optional include/exclude path regex filters for advanced control.
 
 ![CDN Enabler for Publii](https://cdn.jsdelivr.net/gh/vivek-kumar-poddar/cdn-enabler-publii@main/assets/cdn-enabler-plugin-publii.png)
 
-## How It Works
+## Configuration
 
-The plugin intelligently processes your site's output during deployment.
+### CDN Config
 
-*   **For HTML Content:** It finds all `src`, `href`, and `srcset` attributes and replaces local URLs with your specified CDN URL based on your configuration.
-*   **For Feeds & Sitemaps:** It identifies asset URLs within your `feed.xml`, `feed.json`, and `sitemap.xml` files and rewrites them to use the CDN path, ensuring that subscribers and search engines also benefit from accelerated content.
-
-## Configuration Options
-
-The plugin offers the following settings, which can be configured from the Publii interface.
-
-### CDN URL
-
-*   **Enter URL (`cdnUrl`)**
-    *   **Description:** Enter your full CDN URL without a trailing slash (e.g., `https://cdn.yourdomain.com`). The plugin will automatically handle the protocol (http/https).
+1. `cdnUrl`: CDN origin URL, for example `https://cdn.yourdomain.com`.
+Protocol fallback order for root-relative assets:
+site protocol -> configured CDN protocol -> HTTPS fallback.
 
 ### Asset Settings
 
-Choose which types of static assets should be served from your CDN.
-
-*   **Images (`enableImages`)**
-    *   **Description:** Enable to serve images (.jpg, .png, .gif, .svg, .webp, etc.) from the CDN. This includes images in posts, thumbnails, and responsive `srcset` images.
-    *   **Default:** `Enabled`
-
-*   **CSS (`enableCss`)**
-    *   **Description:** Enable to serve CSS stylesheets from the CDN.
-    *   **Default:** `Enabled`
-
-*   **JavaScript (`enableJs`)**
-    *   **Description:** Enable to serve JavaScript files from the CDN.
-    *   **Default:** `Enabled`
-
-*   **Fonts (`enableFonts`)**
-    *   **Description:** Enable to serve font files (.woff, .woff2, .ttf, etc.) from the CDN.
-    *   **Default:** `Enabled`
+1. `enableImages`: rewrite image paths (typically `/media/`).
+2. `enableCss`: rewrite CSS files in `/assets/` and `/themes/`.
+3. `enableJs`: rewrite JS files in `/assets/` and `/themes/`.
+4. `enableFonts`: rewrite font files in `/assets/` and `/themes/`.
 
 ### Advanced Settings
 
-Enable CDN for assets linked within feeds. It's recommended to keep these disabled unless you have a specific need.
+1. `enableSitemap`: allow rewrite processing for sitemap output.
+2. `enableJsonFeed`: allow rewrite processing for JSON feed output.
+3. `enableXmlFeed`: allow rewrite processing for RSS feed output.
+4. `includePathPattern` (optional): only rewrite paths matching this regex.
+Example: `^/(media|assets|themes)/`
+5. `excludePathPattern` (optional): skip rewrite for paths matching this regex.
+Example: `/media/private/|\\.map$`
 
-*   **Sitemap (`enableSitemap`)**
-    *   **Description:** Rewrites asset URLs (e.g., image sitemaps) within `sitemap.xml`. This will NOT rewrite the main page URLs, which is important for SEO.
-    *   **Default:** `Disabled`
+## Deployment Behavior
 
-*   **JSON Feed (`enableJsonFeed`)**
-    *   **Description:** Rewrites image and asset URLs within the `feed.json` file.
-    *   **Default:** `Disabled`
+1. Rewrites are applied only during deploy contexts to preserve editing preview behavior.
+2. Main page URLs are not intended for replacement; asset URLs are the focus.
+3. `srcset` descriptors are preserved while only URL tokens are replaced.
+4. Feed/sitemap rewriting respects the same asset toggle rules used by HTML rewrites.
 
-*   **RSS Feed (`enableXmlFeed`)**
-    *   **Description:** Rewrites image and asset URLs within the `feed.xml` file.
-    *   **Default:** `Disabled`
+## Rewrite Safety Examples
+
+1. Same-origin rewrite:
+`https://mysite.com/media/logo.jpg` -> `https://cdn.example.com/media/logo.jpg`
+2. Third-party URL protection:
+`https://othercdn.com/media/logo.jpg` -> unchanged
+3. Root-relative protocol-safe rewrite:
+`/media/hero.webp` on an HTTPS site -> `https://cdn.example.com/media/hero.webp`
+4. Srcset rewrite with descriptor preservation:
+`/media/a-400.jpg 400w, /media/a-800.jpg 800w` -> both URLs rewritten, descriptors preserved
 
 ## License
 
-This plugin is licensed under the **GNU AGPLv3**.
+This plugin is licensed under **GNU AGPLv3**. See:
+`cdn-enabler/license.md`
