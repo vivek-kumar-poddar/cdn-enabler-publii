@@ -52,7 +52,9 @@ class CDNLinker {
         const assetUrlTestRegex = new RegExp(`(?:${patterns.join('|')})`);
         const attributeRegex = /(src|href|srcset)=["']([^"']+)["']/g;
 
-        return this.performReplacement(htmlCode, attributeRegex, assetUrlTestRegex);
+        const siteUrl = renderer.site && renderer.site.url ? renderer.site.url.replace(/\/$/, "") : "";
+
+        return this.performReplacement(htmlCode, attributeRegex, assetUrlTestRegex, siteUrl);
     }
 
     /**
@@ -101,7 +103,7 @@ class CDNLinker {
         if (this.config.enableFonts) assetExtensions.push('woff', 'woff2', 'ttf', 'otf', 'eot', 'svg');
 
         if (assetExtensions.length > 0) {
-            patterns.push(`(?:\\/assets\\/|\\/themes\\/).*\\.(?:${assetExtensions.join('|')})(?:\\?[^"']*)?`);
+            patterns.push(`(?:\\/assets\\/|\\/themes\\/)[^?#"']*\\.(?:${assetExtensions.join('|')})(?:\\?[^"']*)?`);
         }
 
         if (this.config.enableJsonFeed) patterns.push('feed\\.json');
@@ -115,24 +117,44 @@ class CDNLinker {
      * @param {string} content - HTML content to process
      * @param {RegExp} attributeRegex - Regex to find HTML attributes
      * @param {RegExp} assetUrlTestRegex - Regex to test if URL should be replaced
+     * @param {string} [siteUrl] - The site base URL
      * @returns {string} Content with CDN URLs
      */
-    performReplacement(content, attributeRegex, assetUrlTestRegex) {
+    performReplacement(content, attributeRegex, assetUrlTestRegex, siteUrl) {
         const cleanCdnDomain = this.cleanCdnDomain();
 
         const replaceUrl = (url) => {
-            if ((!url.startsWith('http') && !url.startsWith('/')) || !assetUrlTestRegex.test(url)) {
+            if (!assetUrlTestRegex.test(url)) {
                 return url;
             }
 
-            const protocol = this.getProtocol(url);
-            const pathMatch = url.match(/(?:https?:\/\/[^/]+)?(\/.+)/);
+            if (url.startsWith('//')) {
+                return url;
+            }
+
+            if (!url.startsWith('http') && !url.startsWith('/')) {
+                return url;
+            }
+
+            if (url.startsWith('http://') || url.startsWith('https://')) {
+                if (siteUrl && url.startsWith(siteUrl)) {
+                    const path = url.slice(siteUrl.length);
+                    const protocol = this.getProtocol(url);
+                    return `${protocol}${cleanCdnDomain}${path.startsWith('/') ? '' : '/'}${path}`;
+                }
+                return url;
+            }
+
+            const protocol = this.getProtocol(this.config.cdnUrl || 'https://');
+            const pathMatch = url.match(/^(\/.+)/);
 
             if (pathMatch && pathMatch[1]) {
                 return `${protocol}${cleanCdnDomain}${pathMatch[1]}`;
             }
+
             return url;
         };
+
 
         return content.replace(attributeRegex, (match, attribute, value) => {
             const newValue = attribute === 'srcset'
